@@ -30,7 +30,7 @@ public class Test {
         });
         countDownLatch.await();
         Stat stat = zooKeeper.exists("/huskyui", (watchEvent)->{
-            if(watchEvent)
+            
         });
         logger.info("stat :{}", stat);
 

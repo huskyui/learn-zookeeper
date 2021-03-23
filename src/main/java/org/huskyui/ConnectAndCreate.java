@@ -1,5 +1,6 @@
 package org.huskyui;
 
+
 import org.apache.zookeeper.*;
 
 import java.io.IOException;
@@ -15,28 +16,13 @@ public class ConnectAndCreate {
 
     private static final String PREFIX = "/mytest-sync-create-";
 
-    public static void main(String[] args) throws IOException, KeeperException, InterruptedException {
+    public static void main(String[] args) throws IOException, InterruptedException, KeeperException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         ZooKeeper zooKeeper = new ZooKeeper("121.36.241.65:2181", 5000, watchedEvent -> {
-                if (watchedEvent.getState() == Watcher.Event.KeeperState.SyncConnected) {
-                    countDownLatch.countDown();
-                }
-            Watcher.Event.EventType eventType = watchedEvent.getType();
-            switch (eventType) {
-                case NodeCreated:
-                    System.out.println("node created " + watchedEvent.getPath());
-                    break;
-                case NodeDataChanged:
-                    System.out.println("node data changed" + watchedEvent.getPath());
-                    break;
-                case NodeDeleted:
-                    System.out.println("node delete" + watchedEvent.getPath());
-                    break;
-                default:
-                    break;
+            if (watchedEvent.getState() == Watcher.Event.KeeperState.SyncConnected) {
+                countDownLatch.countDown();
             }
-
-            }
+        }
         );
         // 这里是确定ZooKeeper已经连接
         countDownLatch.await();
@@ -61,7 +47,5 @@ public class ConnectAndCreate {
 
         TimeUnit.SECONDS.sleep(50);
         zooKeeper.close();
-
-
     }
 }

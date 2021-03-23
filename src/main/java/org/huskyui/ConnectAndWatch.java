@@ -1,7 +1,10 @@
 package org.huskyui;
 
+import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.data.Stat;
 
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
@@ -17,28 +20,21 @@ import static org.apache.zookeeper.Watcher.Event.EventType.NodeCreated;
 public class ConnectAndWatch {
     private static final String PREFIX = "/mytest-sync-create-";
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws IOException, InterruptedException, KeeperException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         ZooKeeper zooKeeper = new ZooKeeper("121.36.241.65:2181", 5000, (watchedEvent) -> {
             if (watchedEvent.getState() == Watcher.Event.KeeperState.SyncConnected) {
                 countDownLatch.countDown();
             }
-            Watcher.Event.EventType eventType = watchedEvent.getType();
-            switch (eventType) {
-                case NodeCreated:
-                    System.out.println("node created " + watchedEvent.getPath());
-                    break;
-                case NodeDataChanged:
-                    System.out.println("node data changed" + watchedEvent.getPath());
-                    break;
-                case NodeDeleted:
-                    System.out.println("node delete" + watchedEvent.getPath());
-                    break;
-                default:
-                    break;
-            }
         });
         countDownLatch.await();
+
+        Stat stat = zooKeeper.exists(PREFIX, new Watcher() {
+            @Override
+            public void process(WatchedEvent watchedEvent) {
+            }
+        });
+
 
         TimeUnit.SECONDS.sleep(1000);
 
