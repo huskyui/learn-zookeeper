@@ -1,19 +1,22 @@
-package org.huskyui;
+package org.huskyui.day01;
 
 import org.apache.zookeeper.AsyncCallback;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.data.Stat;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 /**
  * @author huskyui
  */
-public class ZKDelete {
+public class ZKExists {
     String IP = "127.0.0.1:2181";
     ZooKeeper zooKeeper;
 
@@ -38,29 +41,24 @@ public class ZKDelete {
     }
 
     @Test
-    public void delete1() throws Exception{
-        // arg1: 删除节点的路径
-        // arg2: 数据版本信息 -1 代表删除节点时不考虑版本信息
-        zooKeeper.delete("/delete/node1",-1);
+    public void exists1() throws Exception{
+        Stat stat = zooKeeper.exists("/exists",false);
+        System.out.println(stat.getVersion());
     }
 
     @Test
-    public void delete2() throws Exception{
-        zooKeeper.delete("/delete/node2", -1, new AsyncCallback.VoidCallback() {
+    public void exists2() throws Exception{
+        Map<String,String> map = new HashMap<>();
+        zooKeeper.exists("/exists", false, new AsyncCallback.StatCallback() {
             @Override
-            public void processResult(int rc, String path, Object ctx) {
-                // 0 represent delete success
+            public void processResult(int rc, String path, Object ctx, Stat stat) {
                 System.out.println(rc);
-                // the path of node
-                System.out.println(path);
-                // 上下文参数对象
-                System.out.println(ctx);
+                Map context = (Map)ctx;
+                map.put(path,String.valueOf(stat.getVersion()));
             }
-        }," i am context");
-        Thread.sleep(10000);
+        },map);
+        Thread.sleep(5_000);
         System.out.println("结束");
+        System.out.println(map);
     }
-
-
-
 }

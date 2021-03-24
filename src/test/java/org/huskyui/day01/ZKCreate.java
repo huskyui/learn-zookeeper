@@ -1,4 +1,4 @@
-package org.huskyui;
+package org.huskyui.day01;
 
 import org.apache.zookeeper.*;
 import org.apache.zookeeper.data.ACL;

@@ -1,10 +1,9 @@
-package org.huskyui;
+package org.huskyui.day01;
 
 import org.apache.zookeeper.AsyncCallback;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
-import org.apache.zookeeper.data.Stat;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,8 +13,7 @@ import java.util.concurrent.CountDownLatch;
 /**
  * @author huskyui
  */
-public class ZKSet {
-
+public class ZKDelete {
     String IP = "127.0.0.1:2181";
     ZooKeeper zooKeeper;
 
@@ -40,33 +38,29 @@ public class ZKSet {
     }
 
     @Test
-    public void set1() throws Exception{
-        // arg1: 节点路径
-        // arg2: 节点修改的数据
-        // arg3: 版本号 -1代表版本号不作为修改条件
-        Stat stat = zooKeeper.setData("/set/node1","node13".getBytes(),2);
-        // 节点的版本号
-        System.out.println(stat.getVersion());
-        // 节点的创建事件
-        System.out.println(stat.getCtime());
+    public void delete1() throws Exception{
+        // arg1: 删除节点的路径
+        // arg2: 数据版本信息 -1 代表删除节点时不考虑版本信息
+        zooKeeper.delete("/delete/node1",-1);
     }
 
     @Test
-    public void set2() throws Exception{
-        zooKeeper.setData("/set/node2", "node21".getBytes(), -1, new AsyncCallback.StatCallback() {
+    public void delete2() throws Exception{
+        zooKeeper.delete("/delete/node2", -1, new AsyncCallback.VoidCallback() {
             @Override
-            public void processResult(int rc, String path, Object ctx, Stat stat) {
-                // o 代表处理成功
+            public void processResult(int rc, String path, Object ctx) {
+                // 0 represent delete success
                 System.out.println(rc);
-                // 修改节点的路径
+                // the path of node
                 System.out.println(path);
-                // 上下文的参数对象
+                // 上下文参数对象
                 System.out.println(ctx);
-                System.out.println(stat.getVersion());
-
             }
-        },"I am context");
-        Thread.sleep(50000);
+        }," i am context");
+        Thread.sleep(10000);
         System.out.println("结束");
     }
+
+
+
 }

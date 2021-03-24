@@ -1,5 +1,4 @@
-package org.huskyui;
-
+package org.huskyui.day01;
 
 import org.apache.zookeeper.AsyncCallback;
 import org.apache.zookeeper.WatchedEvent;
@@ -15,7 +14,7 @@ import java.util.concurrent.CountDownLatch;
 /**
  * @author huskyui
  */
-public class ZKGet {
+public class ZKSet {
 
     String IP = "127.0.0.1:2181";
     ZooKeeper zooKeeper;
@@ -41,27 +40,33 @@ public class ZKGet {
     }
 
     @Test
-    public void get1() throws Exception{
-        Stat stat = new Stat();
-        byte[] bytes = zooKeeper.getData("/get/node1",false,stat);
-        System.out.println(new String(bytes));
+    public void set1() throws Exception{
+        // arg1: 节点路径
+        // arg2: 节点修改的数据
+        // arg3: 版本号 -1代表版本号不作为修改条件
+        Stat stat = zooKeeper.setData("/set/node1","node13".getBytes(),2);
+        // 节点的版本号
         System.out.println(stat.getVersion());
+        // 节点的创建事件
+        System.out.println(stat.getCtime());
     }
 
     @Test
-    public void get2() throws Exception{
-        zooKeeper.getData("/get/node1", false, new AsyncCallback.DataCallback() {
+    public void set2() throws Exception{
+        zooKeeper.setData("/set/node2", "node21".getBytes(), -1, new AsyncCallback.StatCallback() {
             @Override
-            public void processResult(int rc, String path, Object ctx, byte[] data, Stat stat) {
+            public void processResult(int rc, String path, Object ctx, Stat stat) {
+                // o 代表处理成功
                 System.out.println(rc);
+                // 修改节点的路径
                 System.out.println(path);
-                System.out.println(new String(data));
+                // 上下文的参数对象
+                System.out.println(ctx);
                 System.out.println(stat.getVersion());
+
             }
         },"I am context");
-        Thread.sleep(10000);
+        Thread.sleep(50000);
         System.out.println("结束");
-
     }
-
 }
